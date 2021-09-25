@@ -1,0 +1,111 @@
+
+#include <esp_now.h>
+#include <WiFi.h>
+
+  const int A = 25;
+  const int B = 26;
+  const int X = 27;
+  const int UP = 15;
+  const int DOWN = 14;
+  const int LEFT = 4;
+  const int RIGHT = 19;
+  const int RT = 18;
+  const int LT = 5;
+  const int SE = 22;
+  const int ST = 21;
+
+uint8_t broadcastAddress[] = {0x98, 0xCD, 0xAC, 0xD3, 0x46, 0x68}; //98:CD:AC:D3:46:68
+
+typedef struct test_struct {
+    int A;
+    int B;
+    int X;
+    int UP;
+    int DOWN;
+    int LEFT;
+    int RIGHT;
+    int RT;
+    int LT;
+    int SE;
+    int ST;
+} test_struct;
+
+test_struct pad;
+
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+  Serial.print("\r\nLast Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+}
+ 
+void setup() {
+  Serial.begin(115200);
+ 
+  WiFi.mode(WIFI_STA);
+
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+
+  esp_now_register_send_cb(OnDataSent);
+
+  esp_now_peer_info_t peerInfo;
+  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  peerInfo.channel = 0;  
+  peerInfo.encrypt = false;
+       
+  if (esp_now_add_peer(&peerInfo) != ESP_OK){
+    Serial.println("Failed to add peer");
+    return;
+  }
+
+  pinMode(A, INPUT_PULLUP);
+  pinMode(B, INPUT_PULLUP);
+  pinMode(X, INPUT_PULLUP);
+  pinMode(UP, INPUT_PULLUP);
+  pinMode(DOWN, INPUT_PULLUP);
+  pinMode(LEFT, INPUT_PULLUP);
+  pinMode(RIGHT, INPUT_PULLUP);
+  pinMode(RT, INPUT_PULLUP);
+  pinMode(LT, INPUT_PULLUP);
+  pinMode(SE, INPUT_PULLUP);
+  pinMode(ST, INPUT_PULLUP);
+
+}
+ 
+void loop() {
+  // Set values to send
+   pad.A = !digitalRead(A);
+   pad.B = !digitalRead(B);
+   pad.X = !digitalRead(X);
+   pad.UP = !digitalRead(UP);
+   pad.DOWN = !digitalRead(DOWN);
+   pad.LEFT = !digitalRead(LEFT);
+   pad.RIGHT = !digitalRead(RIGHT);
+   pad.RT = !digitalRead(RT);
+   pad.LT = !digitalRead(LT);
+   pad.SE = !digitalRead(SE);
+   pad.ST = !digitalRead(ST);
+
+   Serial.println(A);
+   Serial.println(B);
+   Serial.println(X);
+   Serial.println(UP);
+   Serial.println(DOWN);
+   Serial.println(LEFT);
+   Serial.println(RIGHT);
+   Serial.println(RT);
+   Serial.println(LT);
+   Serial.println(SE);
+   Serial.println(ST);
+
+  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &pad, sizeof(test_struct));
+   
+  if (result == ESP_OK) {
+    Serial.println("Sent with success");
+  }
+  else {
+    Serial.println("Error sending the data");
+  }
+  delay(50);
+}
