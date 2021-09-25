@@ -1,0 +1,106 @@
+
+#include <esp_now.h>
+#include <WiFi.h>
+
+  const int A = 25;
+  const int B = 26;
+  const int X = 27;
+  const int UP = 15;
+  const int DOWN = 14;
+  const int LEFT = 4;
+  const int RIGHT = 19;
+  const int RT = 18;
+  const int LT = 5;
+  const int SE = 22;
+  const int ST = 21;
+    
+typedef struct test_struct {
+    int A;
+    int B;
+    int X;
+    int UP;
+    int DOWN;
+    int LEFT;
+    int RIGHT;
+    int RT;
+    int LT;
+    int SE;
+    int ST;
+} test_struct;
+
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  memcpy(&pad, incomingData, sizeof(test_struct));
+  Serial.print("Bytes received: ");
+  Serial.println(len);
+  Serial.print("A: ");
+  Serial.println(pad.A);
+  Serial.print("B: ");
+  Serial.println(pad.B);
+  Serial.print("X: ");
+  Serial.println(pad.X);
+  Serial.print("UP: ");
+  Serial.println(pad.UP);
+  Serial.print("DOWN: ");
+  Serial.println(pad.DOWN);
+  Serial.print("LEFT: ");
+  Serial.println(pad.LEFT);
+  Serial.print("RIGHT: ");
+  Serial.println(pad.RIGHT);
+  Serial.print("RIGHT: ");
+  Serial.println(pad.LT);
+  Serial.print("LT: ");
+  Serial.println(pad.RT);
+  Serial.print("RT: ");
+  Serial.println(pad.SE);
+  Serial.print("SE: ");
+  Serial.println(pad.ST);
+  Serial.print("ST: ");
+}
+ 
+void setup() {
+  // Initialize Serial Monitor
+  Serial.begin(115200);
+  Serial.println();
+  Serial.print("ESP Board MAC Address:  ");
+  Serial.println(WiFi.macAddress());
+
+  
+  WiFi.mode(WIFI_STA);
+
+
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+  
+
+  esp_now_register_recv_cb(OnDataRecv);
+
+  pinMode(A, OUTPUT);
+  pinMode(B, OUTPUT);
+  pinMode(X, OUTPUT);
+  pinMode(UP, OUTPUT);
+  pinMode(DOWN, OUTPUT);
+  pinMode(LEFT, OUTPUT);
+  pinMode(RIGHT, OUTPUT);
+  pinMode(RT, OUTPUT);
+  pinMode(LT, OUTPUT);
+  pinMode(SE, OUTPUT);
+  pinMode(ST, OUTPUT);
+  
+}
+ 
+void loop()
+{
+  digitalWrite(A, pad.A);
+  digitalWrite(B, pad.B);
+  digitalWrite(X, pad.X);
+  digitalWrite(UP, pad.UP);
+  digitalWrite(DOWN, pad.DOWN);
+  digitalWrite(LEFT, pad.LEFT);
+  digitalWrite(RIGHT, pad.RIGHT);
+  digitalWrite(RT, pad.RT);
+  digitalWrite(LT, pad.LT);
+  digitalWrite(SE, pad.SE);
+  digitalWrite(ST, pad.ST);
+}
